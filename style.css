@@ -54,7 +54,16 @@ body {
     box-shadow: 0 0 12px rgba(14, 158, 148, 0.6);
   }
   
-  
+
+  .feature-card {
+    border: 1px solid transparent;
+    transition: all 0.3s ease-in-out;
+  }
+  .feature-card:hover {
+    border: 1px solid #0dcaf0;
+    box-shadow: 0 0 15px #0dcaf0;
+  }
+
  
   
   .card img {
