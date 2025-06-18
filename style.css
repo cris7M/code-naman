@@ -54,6 +54,10 @@ body {
     box-shadow: 0 0 12px rgba(14, 158, 148, 0.6);
   }
   
+  .bg-dark {
+    --bs-bg-opacity: 1;
+    background-color: rgb(11 11 12) !important;
+}
 
   .feature-card {
     border: 1px solid transparent;
