@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codenaman - AI Powered Community Platform</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Google Font - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #1a1a1a; /* Dark background */
+            color: #e0e0e0; /* Light text for general body */
+        }
+        .header-icon {
+            /* Styles for header navigation icons */
+            @apply flex flex-col items-center justify-center p-2 rounded-lg transition-colors duration-200 ease-in-out hover:bg-gray-700 cursor-pointer;
+        }
+        .header-icon i {
+            @apply text-xl mb-1;
+        }
+        .card {
+            /* Styles for content cards (profile, news, posts, jobs) */
+            @apply bg-gray-800 rounded-lg shadow-lg p-4 mb-4 border border-gray-700; /* Darker background, subtle border */
+        }
+        /* Removed custom scrollbar for main content areas to prevent skewing and allow content to spread */
+        /* Messaging box styles - kept consistent for its specific functionality */
+        .messaging-box {
+            @apply fixed bottom-4 right-4 bg-gray-800 rounded-lg shadow-xl w-80 h-96 flex flex-col z-50;
+        }
+        .messaging-header {
+            @apply flex justify-between items-center bg-gray-900 text-white p-3 rounded-t-lg;
+        }
+        .messaging-body {
+            @apply flex-grow p-3 overflow-y-auto; /* Keep scroll for messaging body */
+            scrollbar-width: thin;
+            scrollbar-color: #555 #333;
+        }
+        .messaging-body::-webkit-scrollbar {
+            width: 8px;
+        }
+        .messaging-body::-webkit-scrollbar-track {
+            background: #333;
+            border-radius: 10px;
+        }
+        .messaging-body::-webkit-scrollbar-thumb {
+            background-color: #555;
+            border-radius: 10px;
+            border: 2px solid #333;
+        }
+        .messaging-footer {
+            @apply p-3 border-t border-gray-700 flex;
+        }
+        .message-bubble-sent {
+            @apply bg-blue-600 text-white p-2 rounded-lg max-w-[75%] self-end mb-2;
+        }
+        .message-bubble-received {
+            @apply bg-gray-700 text-gray-200 p-2 rounded-lg max-w-[75%] self-start mb-2;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Header Section -->
+    <header class="bg-gray-900 text-white p-4 shadow-md sticky top-0 z-50">
+        <div class="container mx-auto flex items-center justify-between flex-wrap">
+            <!-- Logo -->
+            <div class="flex items-center flex-shrink-0 text-white mr-6">
+                <!-- Using a placeholder image for the logo, please replace with your actual logo. -->
+                <img src="https://placehold.co/120x40/000000/FFFFFF?text=CODE+NAMAN" alt="Code Naman Logo" class="h-10 rounded-md mr-3">
+            </div>
+
+            <!-- Search Bar -->
+            <div class="flex-grow max-w-lg mx-auto px-4 py-2">
+                <div class="relative">
+                    <input type="text" placeholder="Search for people, jobs, posts..."
+                        class="w-full p-2 pl-10 rounded-full bg-gray-700 border border-gray-600 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+                </div>
+            </div>
+
+            <!-- Navigation Icons -->
+            <nav class="flex items-center space-x-2 md:space-x-4">
+                <!-- Home Icon -->
+                <div class="header-icon">
+                    <i class="fas fa-home text-blue-400"></i>
+                    <span class="text-xs text-gray-300 hidden md:block">Home</span>
+                </div>
+                <!-- Network Icon -->
+                <div class="header-icon">
+                    <i class="fas fa-users text-gray-300"></i>
+                    <span class="text-xs text-gray-300 hidden md:block">My Network</span>
+                </div>
+                <!-- Jobs Icon -->
+                <div class="header-icon">
+                    <i class="fas fa-briefcase text-gray-300"></i>
+                    <span class="text-xs text-gray-300 hidden md:block">Jobs</span>
+                </div>
+                <!-- Messages Icon -->
+                <div id="messagingIcon" class="header-icon">
+                    <i class="fas fa-comment-dots text-gray-300"></i>
+                    <span class="text-xs text-gray-300 hidden md:block">Messaging</span>
+                </div>
+                <!-- Notifications Icon -->
+                <div class="header-icon">
+                    <i class="fas fa-bell text-gray-300"></i>
+                    <span class="text-xs text-gray-300 hidden md:block">Notifications</span>
+                </div>
+                <!-- Profile Icon/Avatar -->
+                <div class="header-icon">
+                    <img src="https://placehold.co/28x28/4a4a4a/FFFFFF?text=P" alt="Profile" class="rounded-full w-7 h-7 border border-gray-500">
+                    <span class="text-xs text-gray-300 hidden md:block">Me</span>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="container mx-auto mt-4 p-4 flex-grow grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
+
+        <!-- Left Sidebar: Profile & News -->
+        <aside class="md:col-span-1">
+            <!-- Profile Card -->
+            <div class="card">
+                <div class="flex flex-col items-center mb-4">
+                    <img src="https://placehold.co/80x80/6b6b6b/FFFFFF?text=User" alt="User Profile" class="w-20 h-20 rounded-full mb-2 border-2 border-blue-400">
+                    <h2 class="text-xl font-semibold text-white">John Doe</h2>
+                    <p class="text-sm text-gray-400 text-center">AI Engineer | Freelancer | Community Builder</p>
+                    <p class="text-xs text-gray-500 mt-1">500+ Connections</p>
+                </div>
+                <hr class="border-gray-700 my-3">
+                <button class="w-full bg-blue-600 text-white py-2 rounded-full hover:bg-blue-700 transition duration-300 font-medium">View Profile</button>
+            </div>
+
+            <!-- Latest News related to Tech -->
+            <div class="card">
+                <h3 class="text-lg font-semibold mb-3 text-white">Code Naman News</h3>
+                <ul class="space-y-3">
+                    <li class="pb-2 border-b border-gray-700 last:border-b-0">
+                        <a href="#" class="text-blue-400 hover:underline font-medium text-base">The Rise of Generative AI in Creative Industries</a>
+                        <p class="text-gray-300 text-sm mt-1">Exploring how AI is revolutionizing design, music, and art...</p>
+                    </li>
+                    <li class="pb-2 border-b border-gray-700 last:border-b-0">
+                        <a href="#" class="text-blue-400 hover:underline font-medium text-base">Blockchain's Impact on Data Security in 2025</a>
+                        <p class="text-gray-300 text-sm mt-1">A deep dive into decentralized ledger technologies...</p>
+                    </li>
+                    <li class="pb-2 border-b border-gray-700 last:border-b-0">
+                        <a href="#" class="text-blue-400 hover:underline font-medium text-base">Top 5 Programming Languages for Machine Learning This Year</a>
+                        <p class="text-gray-300 text-sm mt-1">Insights into Python, R, Julia, and more...</p>
+                    </li>
+                     <li class="pb-2 border-b border-gray-700 last:border-b-0">
+                        <a href="#" class="text-blue-400 hover:underline font-medium text-base">New AI Model Achieves Human-Level Performance in Language Tasks</a>
+                        <p class="text-gray-300 text-sm mt-1">Breakthroughs in natural language understanding and generation...</p>
+                    </li>
+                    <li class="pb-2 border-b border-gray-700 last:border-b-0">
+                        <a href="#" class="text-blue-400 hover:underline font-medium text-base">Quantum Computing: From Theory to Practical Applications</a>
+                        <p class="text-gray-300 text-sm mt-1">Understanding the future of computation and its implications...</p>
+                    </li>
+                    <li class="pb-2 border-b border-gray-700 last:border-b-0">
+                        <a href="#" class="text-blue-400 hover:underline font-medium text-base">Cybersecurity Trends: Protecting Data in a Connected World</a>
+                        <p class="text-gray-300 text-sm mt-1">Latest threats and defense strategies for individuals and businesses...</p>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Center Section: Post & Feeds -->
+        <section class="md:col-span-2 lg:col-span-1">
+            <!-- Post Creation Area -->
+            <div class="card">
+                <div class="flex items-center space-x-3 mb-4">
+                    <img src="https://placehold.co/48x48/666/fff?text=P" alt="Your Profile" class="w-12 h-12 rounded-full border border-gray-500">
+                    <input type="text" placeholder="Start a post, express your thoughts..."
+                        class="flex-grow p-3 rounded-full bg-gray-700 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500 text-gray-200 placeholder-gray-400">
+                </div>
+                <div class="flex justify-around items-center text-gray-400">
+                    <button class="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-700 transition duration-200">
+                        <i class="fas fa-image text-blue-400"></i>
+                        <span class="text-sm">Photo</span>
+                    </button>
+                    <button class="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-700 transition duration-200">
+                        <i class="fas fa-video text-green-400"></i>
+                        <span class="text-sm">Video</span>
+                    </button>
+                    <button class="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-700 transition duration-200">
+                        <i class="fas fa-calendar-alt text-orange-400"></i>
+                        <span class="text-sm">Event</span>
+                    </button>
+                    <button class="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-700 transition duration-200">
+                        <i class="fas fa-edit text-red-400"></i>
+                        <span class="text-sm">Write Article</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Posts Feed -->
+            <div class="space-y-4">
+                <!-- Example Post 1 -->
+                <div class="card">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <img src="https://placehold.co/40x40/FF0000/fff?text=C" alt="Creator Profile" class="w-10 h-10 rounded-full border border-gray-500">
+                        <div>
+                            <p class="font-semibold text-white">Community Member</p>
+                            <p class="text-xs text-gray-400">AI Developer at Tech Innovations • 2h ago</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 mb-3">Just finished a fantastic freelance project building a custom chatbot using GPT-4! The client was thrilled with the results. Loving the power of AI to transform businesses. #AI #Freelance #GPT4 #Innovation</p>
+                    <img src="https://placehold.co/600x300/4a4a4a/FFFFFF?text=AI+Chatbot+Project+Image" alt="Post Image" class="w-full rounded-md mb-3">
+                    <div class="flex justify-between items-center text-sm text-gray-400 mb-3">
+                        <span><span class="font-medium text-white">123</span> Likes • <span class="font-medium text-white">45</span> Comments</span>
+                    </div>
+                    <hr class="border-gray-700 my-3">
+                    <div class="flex justify-around items-center text-gray-400">
+                        <button class="flex items-center space-x-1 p-2 rounded-md hover:bg-gray-700 transition duration-200">
+                            <i class="fas fa-thumbs-up"></i>
+                            <span>Like</span>
+                        </button>
+                        <button class="flex items-center space-x-1 p-2 rounded-md hover:bg-gray-700 transition duration-200">
+                            <i class="fas fa-comment"></i>
+                            <span>Comment</span>
+                        </button>
+                        <button class="flex items-center space-x-1 p-2 rounded-md hover:bg-gray-700 transition duration-200">
+                            <i class="fas fa-share-alt"></i>
+                            <span>Share</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Example Post 2 -->
+                <div class="card">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <img src="https://placehold.co/40x40/008080/fff?text=S" alt="Creator Profile" class="w-10 h-10 rounded-full border border-gray-500">
+                        <div>
+                            <p class="font-semibold text-white">Skill Seeker</p>
+                            <p class="text-xs text-gray-400">Looking for a Remote UI/UX Designer • 1d ago</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 mb-3">Our startup is actively seeking a talented UI/UX Designer for a full-time remote position. Must have experience with Figma and a strong portfolio of web and mobile designs. Apply directly on our jobs page! #Hiring #RemoteJobs #UIUX #Design</p>
+                    <div class="flex justify-between items-center text-sm text-gray-400 mb-3">
+                        <span><span class="font-medium text-white">89</span> Likes • <span class="font-medium text-white">21</span> Comments</span>
+                    </div>
+                    <hr class="border-gray-700 my-3">
+                    <div class="flex justify-around items-center text-gray-400">
+                        <button class="flex items-center space-x-1 p-2 rounded-md hover:bg-gray-700 transition duration-200">
+                            <i class="fas fa-thumbs-up"></i>
+                            <span>Like</span>
+                        </button>
+                        <button class="flex items-center space-x-1 p-2 rounded-md hover:bg-gray-700 transition duration-200">
+                            <i class="fas fa-comment"></i>
+                            <span>Comment</span>
+                        </button>
+                        <button class="flex items-center space-x-1 p-2 rounded-md hover:bg-gray-700 transition duration-200">
+                            <i class="fas fa-share-alt"></i>
+                            <span>Share</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Example Post 3 -->
+                <div class="card">
+                    <div class="flex items-center space-x-3 mb-3">
+                        <img src="https://placehold.co/40x40/8A2BE2/fff?text=V" alt="Creator Profile" class="w-10 h-10 rounded-full border border-gray-500">
+                        <div>
+                            <p class="font-semibold text-white">Verified Professional</p>
+                            <p class="text-xs text-gray-400">Senior Data Scientist • 3d ago</p>
+                        </div>
+                    </div>
+                    <p class="text-gray-300 mb-3">Excited to announce my new course on advanced machine learning algorithms is now live! Check it out and let me know your thoughts. Link in bio! #MachineLearning #DataScience #OnlineCourse</p>
+                    <div class="flex justify-between items-center text-sm text-gray-400 mb-3">
+                        <span><span class="font-medium text-white">250</span> Likes • <span class="font-medium text-white">78</span> Comments</span>
+                    </div>
+                    <hr class="border-gray-700 my-3">
+                    <div class="flex justify-around items-center text-gray-400">
+                        <button class="flex items-center space-x-1 p-2 rounded-md hover:bg-gray-700 transition duration-200">
+                            <i class="fas fa-thumbs-up"></i>
+                            <span>Like</span>
+                        </button>
+                        <button class="flex items-center space-x-1 p-2 rounded-md hover:bg-gray-700 transition duration-200">
+                            <i class="fas fa-comment"></i>
+                            <span>Comment</span>
+                        </button>
+                        <button class="flex items-center space-x-1 p-2 rounded-md hover:bg-gray-700 transition duration-200">
+                            <i class="fas fa-share-alt"></i>
+                            <span>Share</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Sidebar: Job Categories & Connections -->
+        <aside class="hidden lg:col-span-1 lg:flex flex-col">
+            <!-- My Connections / People You May Know -->
+            <div class="card">
+                <h3 class="text-lg font-semibold mb-3 text-white">My Connections</h3>
+                <ul class="space-y-3">
+                    <li class="flex items-center space-x-3 pb-2 border-b border-gray-700 last:border-b-0">
+                        <img src="https://placehold.co/40x40/ADD8E6/000?text=A" alt="Connection 1" class="w-10 h-10 rounded-full">
+                        <div>
+                            <a href="#" class="font-medium text-blue-400 hover:underline">Alice Johnson</a>
+                            <p class="text-sm text-gray-400">Product Manager</p>
+                            <button class="mt-1 text-xs text-blue-400 border border-blue-400 rounded-full px-2 py-1 hover:bg-blue-900 transition duration-300">Message</button>
+                        </div>
+                    </li>
+                    <li class="flex items-center space-x-3 pb-2 border-b border-gray-700 last:border-b-0">
+                        <img src="https://placehold.co/40x40/ADD8E6/000?text=B" alt="Connection 2" class="w-10 h-10 rounded-full">
+                        <div>
+                            <a href="#" class="font-medium text-blue-400 hover:underline">Bob Williams</a>
+                            <p class="text-sm text-gray-400">Software Engineer</p>
+                            <button class="mt-1 text-xs text-blue-400 border border-blue-400 rounded-full px-2 py-1 hover:bg-blue-900 transition duration-300">Message</button>
+                        </div>
+                    </li>
+                    <li class="flex items-center space-x-3 pb-2 border-b border-gray-700 last:border-b-0">
+                        <img src="https://placehold.co/40x40/ADD8E6/000?text=C" alt="Connection 3" class="w-10 h-10 rounded-full">
+                        <div>
+                            <a href="#" class="font-medium text-blue-400 hover:underline">Carol Davis</a>
+                            <p class="text-sm text-gray-400">Data Scientist</p>
+                            <button class="mt-1 text-xs text-blue-400 border border-blue-400 rounded-full px-2 py-1 hover:bg-blue-900 transition duration-300">Message</button>
+                        </div>
+                    </li>
+                </ul>
+                <button class="w-full mt-4 bg-gray-700 text-blue-400 py-2 rounded-full hover:bg-gray-600 transition duration-300 font-medium">See All Connections</button>
+            </div>
+
+            <!-- Freelance Jobs -->
+            <div class="card mt-4">
+                <h3 class="text-lg font-semibold mb-3 text-white">Freelance Jobs</h3>
+                <ul class="space-y-3">
+                    <li class="pb-2 border-b border-gray-700 last:border-b-0">
+                        <a href="#" class="text-blue-400 hover:underline font-medium">AI Chatbot Developer</a>
+                        <p class="text-sm text-gray-400">Startup X • Remote</p>
+                    </li>
+                    <li class="pb-2 border-b border-gray-700 last:border-b-0">
+                        <a href="#" class="text-blue-400 hover:underline font-medium">Content Writer (Tech)</a>
+                        <p class="text-sm text-gray-400">Digital Marketing Agency • Mumbai</p>
+                    </li>
+                    <li class="pb-2 border-b border-gray-700 last:border-b-0">
+                        <a href="#" class="text-blue-400 hover:underline font-medium">UI/UX Designer</a>
+                        <p class="text-sm text-gray-400">Freelance Project • Bengaluru</p>
+                    </li>
+                    <li class="pb-2 border-b border-gray-700 last:border-b-0">
+                        <a href="#" class="text-blue-400 hover:underline font-medium">Python Automation Expert</a>
+                        <p class="text-sm text-gray-400">E-commerce Solutions • Remote</p>
+                    </li>
+                    <li class="pb-2 border-b border-gray-700 last:border-b-0">
+                        <a href="#" class="text-blue-400 hover:underline font-medium">Mobile App Tester</a>
+                        <p class="text-sm text-gray-400">Game Dev Studio • Hyderabad</p>
+                    </li>
+                </ul>
+                <button class="w-full mt-4 bg-gray-700 text-blue-400 py-2 rounded-full hover:bg-gray-600 transition duration-300 font-medium">See All Freelance Jobs</button>
+            </div>
+
+            <!-- Full Time Jobs -->
+            <div class="card mt-4">
+                <h3 class="text-lg font-semibold mb-3 text-white">Full Time Jobs</h3>
+                <ul class="space-y-3">
+                    <li class="pb-2 border-b border-gray-700 last:border-b-0">
+                        <a href="#" class="text-blue-400 hover:underline font-medium">Senior Software Engineer</a>
+                        <p class="text-sm text-gray-400">Global Tech Co. • Bengaluru</p>
+                    </li>
+                    <li class="pb-2 border-b border-gray-700 last:border-b-0">
+                        <a href="#" class="text-blue-400 hover:underline font-medium">Data Scientist</a>
+                        <p class="text-sm text-gray-400">FinTech Solutions • Gurugram</p>
+                    </li>
+                    <li class="pb-2 border-b border-gray-700 last:border-b-0">
+                        <a href="#" class="text-blue-400 hover:underline font-medium">Product Manager</a>
+                        <p class="text-sm text-gray-400">EdTech Startup • Pune</p>
+                    </li>
+                    <li class="pb-2 border-b border-gray-700 last:border-b-0">
+                        <a href="#" class="text-blue-400 hover:underline font-medium">Cloud Architect</a>
+                        <p class="text-sm text-gray-400">Cloud Services Inc. • Chennai</p>
+                    </li>
+                    <li class="pb-2 border-b border-gray-700 last:border-b-0">
+                        <a href="#" class="text-blue-400 hover:underline font-medium">DevOps Engineer</a>
+                        <p class="text-sm text-gray-400">SaaS Company • Hyderabad</p>
+                    </li>
+                </ul>
+                <button class="w-full mt-4 bg-gray-700 text-blue-400 py-2 rounded-full hover:bg-gray-600 transition duration-300 font-medium">See All Full Time Jobs</button>
+            </div>
+
+            <!-- Remote Jobs -->
+            <div class="card mt-4">
+                <h3 class="text-lg font-semibold mb-3 text-white">Remote Jobs</h3>
+                <ul class="space-y-3">
+                    <li class="pb-2 border-b border-gray-700 last:border-b-0">
+                        <a href="#" class="text-blue-400 hover:underline font-medium">Remote Backend Developer</a>
+                        <p class="text-sm text-gray-400">Global Remote Team</p>
+                    </li>
+                    <li class="pb-2 border-b border-gray-700 last:border-b-0">
+                        <a href="#" class="text-blue-400 hover:underline font-medium">Remote Digital Marketing Specialist</a>
+                        <p class="text-sm text-gray-400">International Marketing Co.</p>
+                    </li>
+                    <li class="pb-2 border-b border-gray-700 last:border-b-0">
+                        <a href="#" class="text-blue-400 hover:underline font-medium">Remote Graphic Designer</a>
+                        <p class="text-sm text-gray-400">Creative Solutions Studio</p>
+                    </li>
+                    <li class="pb-2 border-b border-gray-700 last:border-b-0">
+                        <a href="#" class="text-blue-400 hover:underline font-medium">Remote Customer Success Manager</a>
+                        <p class="text-sm text-gray-400">SaaS Provider</p>
+                    </li>
+                    <li class="pb-2 border-b border-gray-700 last:border-b-0">
+                        <a href="#" class="text-blue-400 hover:underline font-medium">Remote Cybersecurity Analyst</a>
+                        <p class="text-sm text-gray-400">Security Firm</p>
+                    </li>
+                </ul>
+                <button class="w-full mt-4 bg-gray-700 text-blue-400 py-2 rounded-full hover:bg-gray-600 transition duration-300 font-medium">See All Remote Jobs</button>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-900 text-gray-500 p-4 mt-8 text-center">
+        <div class="container mx-auto">
+            <p class="text-sm">&copy; codenaman 2025 copyright</p>
+        </div>
+    </footer>
+
+    <!-- Messaging Box -->
+    <div id="messagingBox" class="messaging-box hidden">
+        <div class="messaging-header">
+            <h4 class="text-md font-semibold">Messages</h4>
+            <button id="closeMessaging" class="text-gray-400 hover:text-white transition-colors">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+        </div>
+        <div class="messaging-body flex flex-col">
+            <!-- Example Messages -->
+            <div class="message-bubble-received">
+                Hi John! How are you doing?
+            </div>
+            <div class="message-bubble-sent">
+                I'm doing great, thanks for asking!
+            </div>
+            <div class="message-bubble-received">
+                Great to hear! I had a quick question about a project...
+            </div>
+            <div class="message-bubble-sent">
+                Sure, ask away!
+            </div>
+        </div>
+        <div class="messaging-footer">
+            <input type="text" placeholder="Type a message..." class="flex-grow bg-gray-700 text-gray-200 rounded-lg py-2 px-3 focus:outline-none focus:ring-1 focus:ring-blue-500 mr-2">
+            <button class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg transition-colors">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Get references to the messaging icon and the messaging box
+        const messagingIcon = document.getElementById('messagingIcon');
+        const messagingBox = document.getElementById('messagingBox');
+        const closeMessagingButton = document.getElementById('closeMessaging');
+
+        // Function to toggle the visibility of the messaging box
+        function toggleMessagingBox() {
+            messagingBox.classList.toggle('hidden');
+        }
+
+        // Add event listeners
+        if (messagingIcon) {
+            messagingIcon.addEventListener('click', toggleMessagingBox);
+        }
+        if (closeMessagingButton) {
+            closeMessagingButton.addEventListener('click', toggleMessagingBox);
+        }
+    </script>
+</body>
+</html>
